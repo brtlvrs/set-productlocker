@@ -18,8 +18,34 @@
      productlocker for VMware tools. 
 #>
 
-# Query all datastores that are currently accessed by more than one ESXi Host, using out-gridview
-$datastore=Get-Datastore | where {$_.ExtensionData.Summary.MultipleHostAccess} | Out-GridView -Title "Please select a datastore" -OutputMode Single
+# Query all datastores that are currently accessed by more than one ESXi Host
+$Datastores = Get-Datastore | where {$_.ExtensionData.Summary.MultipleHostAccess}
+
+# ------------ MENU FOR CHOOSING SHARED DATASTORE  ------------
+$menu = @{}
+
+Write-Host "Which Shared Datastore are the VMTools Files Located?:" -ForegroundColor Yellow
+    
+#Create Dynamic Menu of the Shared Datastores
+for ($i=1;$i -le $Datastores.count; $i++) {
+    Write-Host "$i. $($Datastores[$i-1].name)"
+    $menu.Add($i,($Datastores[$i-1].name))
+    }
+
+# Do the following block until a valid choice is selected
+do {
+    [int]$ans = Read-Host 'Enter selection'
+    $selection = $menu.Item($ans)
+    if ($selection -eq $null) {
+        Write-host "[$ans] was not a valid option. Please try again..." -ForegroundColor Red}else {
+        Write-host "Continuing with Shared Datastore: $selection" -ForegroundColor Green 
+    }
+} until ($selection -ne $null)
+
+# -------------------------------------------------------------
+
+# Name the Datastore variable from the menu item chosen
+$Datastore = $Datastores | where {$_.Name -eq $selection}
 
 # See if PSDrive 'PL:' exists, if it does, remove it
 if (test-path 'PL:') {Remove-PSDrive PL -Force}
@@ -30,8 +56,38 @@ New-PSDrive -Location $Datastore -Name PL -PSProvider VimDatastore -Root '\' | o
 # Change Directories to the new PSDrive
 cd PL:
 
-#Select rootfolder that contains the productlocker files, using out-gridview
-$selection2=(get-childitem | ?{ $_.PSIsContainer} | sort name |out-gridview -title "Please select a folder" -OutputMode Single).name
+# Create a variable with all the folders from this datastore's root level
+$folders = get-childitem | ?{ $_.PSIsContainer}
+
+# ---------- MENU FOR CHOOSING PRODUCT LOCKER FOLDER  ---------
+
+$menu2 = @{}
+
+# Prompt for Menu
+Write-host "Which Folder is being used for the Shared Product Locker?:" -ForegroundColor Yellow
+
+# Create Menu item for each folder in Datastore
+for ($i=1;$i -le $folders.count; $i++) {
+        Write-Host "$i. $($folders[$i-1].name)"
+        $menu2.Add($i,($folders[$i-1].name))
+    }
+
+# Repeat the following block until a valid choice is made
+do {
+    [int]$ans2 = Read-Host 'Enter selection'
+    $selection2 = $menu2.Item($ans2)
+    if ($selection2 -eq $null) {
+        Write-host "[$ans2] was not a valid option. Please try again..." -ForegroundColor Red
+    } else {
+        Write-host "Continuing with folder: $selection2" -ForegroundColor Green 
+    }
+} until ($selection2 -ne $null)
+
+# -------------------------------------------------------------
+
+# This is here just for comfort and visibility of user. This could be done in many fewer Test-Path's
+
+
 if (Test-Path /$selection2){
 
     # if floppies folder exists, and has more than 1 item inside, move on
@@ -93,7 +149,7 @@ Switch ($Result) {
         # Full Path to ProductLockerLocation
         Write-host "Full path to ProductLockerLocation: [vmfs/volumes/$($datastore.name)/$selection2]" -ForegroundColor Green
         # Set value on all hosts that access shared datastore
-        Get-AdvancedSetting -entity (Get-VMHost -Datastore $selection | sort name) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2"
+        Get-AdvancedSetting -entity (Get-VMHost -Datastore $selection) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2"
     }
     "1" { 
         Write-Host "By not choosing `"Yes`" you will need to manually update the UserVars.ProductLockerLocation value on each host that has access to Datastore [$($datastore.name)]" -ForegroundColor Yellow
@@ -141,7 +197,7 @@ Switch ($Result1) {
 
         # Each host needs to have SSH enabled to continue
         $SSHON = @()
-        $VMhosts = Get-VMHost -Datastore $selection | sort name 
+        $VMhosts = Get-VMHost -Datastore $selection 
         
         # Foreach ESXi Host, see if SSH is running, if it is, add the host to the array
         $VMHosts | % {
