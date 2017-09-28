@@ -7,13 +7,14 @@ This script is released under the MIT license. See the License file for more det
 
 | | |
 |---|---|
-| Version | 0.0.1|
-| branch | master|
+| Version | 0.1.0|
+| branch | develop/v0.1.0|
 
 ### CHANGE LOG
 |build|branch |  Change |
 |---|---|---|
 |0.0| Master| Initial release|
+|0.1.0| develop/v0.1.0| used posh-template as framework for script|
 
 ### How do I get set up?  
 1. Download script
