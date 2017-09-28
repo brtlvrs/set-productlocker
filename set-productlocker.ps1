@@ -282,10 +282,28 @@ Begin{
 }
 
 Process{
-    #-- note: area to write script code.....
+
+    # check if PowerCLi is loaded and connect to vCenter
+    if (Get-module vmware.VimAutomation.core  ){
+        write-host "PowerCLi detected, nice"
+    } elseif (get-module -ListAvailable VMware.VimAutomation.Core) {
+        write-host "No PowerCLi loaded, try loading PowerCLi"
+        get-module -ListAvailable vmware* | Import-Module
+    } else {
+        write-host "PowerCLi not installed, exit script." -ForegroundColor Yellow
+        exit-script
+    }
+    if (Get-module vmware.VimAutomation.core  ){
+        write-host ("Connecting to vCenter "+ $p.vcenter)
+        connect-viserver $p.vcenter
+    } else {
+        Write-host "Failed to load PowerCLi, exiting script." -ForegroundColor Yellow
+        exit-script
+    }
+
     # Query all datastores that are currently accessed by more than one ESXi Host, using out-gridview
     $datastore=Get-Datastore | where {$_.ExtensionData.Summary.MultipleHostAccess} | Out-GridView -Title "Please select a datastore" -OutputMode Single
-
+    
     # See if PSDrive 'PL:' exists, if it does, remove it
     if (test-path 'PL:') {Remove-PSDrive PL -Force}
 
