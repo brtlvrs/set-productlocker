@@ -332,14 +332,16 @@ Process{
             else {
                 cd c:\
                 Remove-PSDrive PL -Force
-                Throw "No files found in floppies folder. please add files and try again"
+                write-host "No files found in floppies folder. please add files and try again" -ForegroundColor Yellow
+                exit-script
             }
             } 
         # if the folder doesn't exist, throw...
         else {
                 cd c:\
                 Remove-PSDrive PL -Force
-                Throw "it appears the floppies folder doesn't exist. add the floppies and vmtools folders with their respective files to the shared datastore"
+                write-host  "it appears the floppies folder doesn't exist. add the floppies and vmtools folders with their respective files to the shared datastore" -ForegroundColor Yellow
+                exit-script
         }
         # if vmtools folder exists, and has more than 1 item inside, move on
         if (Test-Path /$selection2/vmtools) {
@@ -351,14 +353,16 @@ Process{
             else {
                 cd c:\
                 Remove-PSDrive PL -Force
-                Throw "No files found in vmtools folder. please add files and try again"
+                write-host  "No files found in vmtools folder. please add files and try again" -ForegroundColor Yellow
+                exit-script
             }
             }
         # if the folder doesn't exist, throw...
         else {
             cd c:\
             Remove-PSDrive PL -Force
-            Throw "it appears the vmtools folder doesn't exist. add the floppies and vmtools folders with their respective files to the shared datastore"
+            write-host "it appears the vmtools folder doesn't exist. add the floppies and vmtools folders with their respective files to the shared datastore" -ForegroundColor Yellow
+            exit-script
         }
     }
 
