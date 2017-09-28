@@ -7,7 +7,7 @@ This script is released under the MIT license. See the License file for more det
 
 | | |
 |---|---|
-| Version | 0.1.0|
+| Version | 0.1.1|
 | branch | develop/v0.1.0|
 
 ### CHANGE LOG
@@ -15,6 +15,7 @@ This script is released under the MIT license. See the License file for more det
 |---|---|---|
 |0.0| Master| Initial release|
 |0.1.0| develop/v0.1.0| used posh-template as framework for script|
+|0.1.1| develop/v0.1.0| added parameters.ps1 file|
 
 ### How do I get set up?  
 1. Download script
