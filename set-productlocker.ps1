@@ -21,6 +21,9 @@
 # Query all datastores that are currently accessed by more than one ESXi Host, using out-gridview
 $datastore=Get-Datastore | where {$_.ExtensionData.Summary.MultipleHostAccess} | Out-GridView -Title "Please select a datastore" -OutputMode Single
 
+# Display hosts that are connected to the datastore
+$datastore | get-vmhost  | sort name | ft -AutoSize
+
 # See if PSDrive 'PL:' exists, if it does, remove it
 if (test-path 'PL:') {Remove-PSDrive PL -Force}
 
