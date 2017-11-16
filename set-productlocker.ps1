@@ -145,7 +145,7 @@ Switch ($Result1) {
         
         # Foreach ESXi Host, see if SSH is running, if it is, add the host to the array
         $VMHosts | % {
-        if ($_ |Get-VMHostService | ?{$_.key -eq “TSM-SSH”} | ?{$_.Running -eq $true}) {
+        if ($_ |Get-VMHostService | ?{$_.key -eq "TSM-SSH"} | ?{$_.Running -eq $true}) {
             $SSHON += $_.Name
             Write-host "SSH is already running on $($_.Name). adding to array to not be turned off at end of script" -ForegroundColor Yellow
         }
@@ -153,7 +153,7 @@ Switch ($Result1) {
         # if not, start SSH
         else {
             Write-host "Starting SSH on $($_.Name)" -ForegroundColor Yellow
-            Start-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq “TSM-SSH”} ) -Confirm:$false
+            Start-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq "TSM-SSH"} ) -Confirm:$false
         }
         }
          
@@ -178,7 +178,7 @@ Switch ($Result1) {
         $VMhosts | foreach { 
             if ($SSHON -notcontains $_.name) {
                 Write-host "Turning off SSH for $($_.Name)." -ForegroundColor Yellow
-                Stop-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq “TSM-SSH”} ) -Confirm:$false
+                Stop-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq "TSM-SSH"} ) -Confirm:$false
             } else {
                 Write-host "$($_.Name) already had SSH on before running the script. leaving SSH running on host..." -ForegroundColor Yellow
             }
