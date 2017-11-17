@@ -308,6 +308,9 @@ Process{
         exit-script
     }
     
+    # display hosts that are connected to the selected datastore
+    $datastore | get-vmhost | sort name | ft -AutoSize
+
     # See if PSDrive 'PL:' exists, if it does, remove it
     if (test-path 'PL:') {Remove-PSDrive PL -Force}
 
@@ -384,7 +387,7 @@ Process{
             # Full Path to ProductLockerLocation
             Write-host "Full path to ProductLockerLocation: [vmfs/volumes/$($datastore.name)/$selection2]" -ForegroundColor Green
             # Set value on all hosts that access shared datastore
-            Get-AdvancedSetting -entity (Get-VMHost -Datastore $selection | sort name) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2"
+            Get-AdvancedSetting -entity (Get-VMHost -Datastore $datastore| sort name) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2"
         }
         "1" { 
             Write-Host "By not choosing `"Yes`" you will need to manually update the UserVars.ProductLockerLocation value on each host that has access to Datastore [$($datastore.name)]" -ForegroundColor Yellow
@@ -432,11 +435,11 @@ Process{
 
             # Each host needs to have SSH enabled to continue
             $SSHON = @()
-            $VMhosts = Get-VMHost -Datastore $selection | sort name 
+            $VMhosts = Get-VMHost -Datastore $datastore| sort name 
             
             # Foreach ESXi Host, see if SSH is running, if it is, add the host to the array
             $VMHosts | % {
-            if ($_ |Get-VMHostService | ?{$_.key -eq “TSM-SSH”} | ?{$_.Running -eq $true}) {
+            if ($_ |Get-VMHostService | ?{$_.key -eq "TSM-SSH"} | ?{$_.Running -eq $true}) {
                 $SSHON += $_.Name
                 Write-host "SSH is already running on $($_.Name). adding to array to not be turned off at end of script" -ForegroundColor Yellow
             }
@@ -444,7 +447,7 @@ Process{
             # if not, start SSH
             else {
                 Write-host "Starting SSH on $($_.Name)" -ForegroundColor Yellow
-                Start-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq “TSM-SSH”} ) -Confirm:$false
+                Start-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq "TSM-SSH"} ) -Confirm:$false
             }
             }
             
@@ -469,7 +472,7 @@ Process{
             $VMhosts | foreach { 
                 if ($SSHON -notcontains $_.name) {
                     Write-host "Turning off SSH for $($_.Name)." -ForegroundColor Yellow
-                    Stop-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq “TSM-SSH”} ) -Confirm:$false
+                    Stop-VMHostService -HostService ($_ | Get-VMHostService | ?{ $_.Key -eq "TSM-SSH"} ) -Confirm:$false
                 } else {
                     Write-host "$($_.Name) already had SSH on before running the script. leaving SSH running on host..." -ForegroundColor Yellow
                 }
