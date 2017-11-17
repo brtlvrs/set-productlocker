@@ -1,13 +1,10 @@
 <#	
-	.NOTES
+    .NOTES
+    Script originaly created by Brian graf. Modified by Bart Lievers.
 	===========================================================================
 	 Created on:   	11/3/2015 2:59 PM
 	 Created by:   	Brian Graf
-     Corporate blog: blogs.vmare.com/powercli
-                     blogs.vmware.com/vsphere
-     Personal blog: www.vtagion.com
-     Twitter:       @vBrianGraf
-	 Unsupported Script. This receives no support from VMware     	
+     Modified by:   Bart Lievers
 	===========================================================================
 	.DESCRIPTION
 		Assuming you have:
