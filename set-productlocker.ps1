@@ -387,7 +387,7 @@ Process{
             # Full Path to ProductLockerLocation
             Write-host "Full path to ProductLockerLocation: [vmfs/volumes/$($datastore.name)/$selection2]" -ForegroundColor Green
             # Set value on all hosts that access shared datastore
-            Get-AdvancedSetting -entity (Get-VMHost -Datastore $datastore| sort name) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2"
+            Get-AdvancedSetting -entity (Get-VMHost -Datastore $datastore| sort name) -Name 'UserVars.ProductLockerLocation'| Set-AdvancedSetting -Value "vmfs/volumes/$($datastore.name)/$selection2" -confirm:$false
         }
         "1" { 
             Write-Host "By not choosing `"Yes`" you will need to manually update the UserVars.ProductLockerLocation value on each host that has access to Datastore [$($datastore.name)]" -ForegroundColor Yellow
